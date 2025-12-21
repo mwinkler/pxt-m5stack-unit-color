@@ -104,9 +104,13 @@ namespace m5color {
 		return { r, g, b, c }
 	}
 
+	/**
+	 * Initialize the TCS34725 color sensor on the default I2C address (0x29).
+	 * Must be called before reading color values.
+	 */
 	//% blockId=m5color_init
 	//% block="initialize color sensor"
-	//% weight=100 blockGap=8
+	//% weight=100 blockGap=8 group="Basic"
 	export function init(): void {
 
 		// PON cycle ensures the device is awake before ID read
@@ -125,82 +129,138 @@ namespace m5color {
 		enable()
 	}
 
+	/**
+	 * Set the integration time for color measurement.
+	 * Longer times provide more accurate readings but are slower.
+	 * @param it the integration time in milliseconds
+	 */
 	//% blockId=m5color_set_integration
 	//% block="set integration time %it"
-	//% weight=90 blockGap=8
+	//% weight=90 blockGap=8 group="Basic"
 	export function setIntegrationTime(it: IntegrationTime) {
 		_integrationTime = it
 		if (!_initialized) return
 		write8(TCS34725_ATIME, _integrationTime)
 	}
 
+	/**
+	 * Set the sensor gain (sensitivity multiplier).
+	 * Higher gain is useful for dimmer light environments.
+	 * @param gain the gain level (1x, 4x, 16x, or 60x)
+	 */
 	//% blockId=m5color_set_gain
 	//% block="set gain %gain"
-	//% weight=85 blockGap=8
+	//% weight=85 blockGap=8 group="Basic"
 	export function setGain(gain: Gain) {
 		_gain = gain
 		if (!_initialized) return
 		write8(TCS34725_CONTROL, _gain)
 	}
 
+	/**
+	 * Get the raw red channel value (0-65535).
+	 * @return the raw red channel reading
+	 */
 	//% blockId=m5color_raw_red
 	//% block="raw red"
-	//% weight=80
+	//% weight=47 group="Advanced"
 	export function red(): number {
 		return getRawInternal().r
 	}
 
+	/**
+	 * Get the raw green channel value (0-65535).
+	 * @return the raw green channel reading
+	 */
 	//% blockId=m5color_raw_green
 	//% block="raw green"
-	//% weight=79
+	//% weight=46 group="Advanced"
 	export function green(): number {
 		return getRawInternal().g
 	}
 
+	/**
+	 * Get the raw blue channel value (0-65535).
+	 * @return the raw blue channel reading
+	 */
 	//% blockId=m5color_raw_blue
 	//% block="raw blue"
-	//% weight=78
+	//% weight=45 group="Advanced"
 	export function blue(): number {
 		return getRawInternal().b
 	}
 
+	/**
+	 * Get the raw clear (luminosity) channel value (0-65535).
+	 * Represents overall light intensity.
+	 * @return the raw clear channel reading
+	 */
 	//% blockId=m5color_raw_clear
 	//% block="raw clear"
-	//% weight=77 blockGap=8
+	//% weight=44 blockGap=8 group="Advanced"
 	export function clear(): number {
 		return getRawInternal().c
 	}
 
+	/**
+	 * Get the normalized RGB color as a hex color string.
+	 * Values are normalized to 0-255 range and formatted as #RRGGBB.
+	 * @return hex color string (e.g., "#FF0000" for red)
+	 */
 	//% blockId=m5color_rgb
-	//% block="RGB as 0-255 list"
-	//% weight=70 blockGap=8
-	export function rgb(): number[] {
+	//% block="RGB as hex color"
+	//% weight=70 blockGap=8 group="Basic"
+	export function rgb(): string {
 		const raw = getRawInternal()
-		if (raw.c == 0) return [0, 0, 0]
+		if (raw.c == 0) return "#000000"
 		const scale = 255 / raw.c
-		return [Math.round(raw.r * scale), Math.round(raw.g * scale), Math.round(raw.b * scale)]
+		const r = Math.round(raw.r * scale)
+		const g = Math.round(raw.g * scale)
+		const b = Math.round(raw.b * scale)
+		const hexChars = "0123456789ABCDEF"
+		const toHex = (n: number) => {
+			const high = Math.idiv(n, 16)
+			const low = n - (high * 16)
+			return hexChars.charAt(high) + hexChars.charAt(low)
+		}
+		return "#" + toHex(r) + toHex(g) + toHex(b)
 	}
 
+	/**
+	 * Calculate the correlated color temperature in Kelvin.
+	 * Estimates the warmth/coolness of the light: warm (~3000K) to cool (~6500K).
+	 * @return color temperature in Kelvin
+	 */
 	//% blockId=m5color_temperature
 	//% block="color temperature (K)"
-	//% weight=65 blockGap=8
+	//% weight=65 blockGap=8 group="Basic"
 	export function colorTemperature(): number {
 		const raw = getRawInternal()
 		return calculateColorTemperature(raw.r, raw.g, raw.b)
 	}
 
+	/**
+	 * Calculate the illuminance (perceived brightness) in lux.
+	 * Represents the light intensity level in the environment.
+	 * @return illuminance in lux
+	 */
 	//% blockId=m5color_lux
 	//% block="illuminance (lux)"
-	//% weight=60 blockGap=8
+	//% weight=60 blockGap=8 group="Basic"
 	export function lux(): number {
 		const raw = getRawInternal()
 		return calculateLux(raw.r, raw.g, raw.b)
 	}
 
+	/**
+	 * Enable or disable the color sensor interrupt.
+	 * When enabled, the sensor can trigger an interrupt when color values cross thresholds.
+	 * @param enable true to enable interrupt, false to disable
+	 */
 	//% blockId=m5color_set_interrupt
 	//% block="set color interrupt %enable"
 	//% enable.shadow="toggleYesNo"
-	//% weight=55 blockGap=8 advanced=true
+	//% weight=50 blockGap=8 group="Advanced"
 	export function setInterrupt(enable: boolean): void {
 		if (!ensureInit()) return
 		const r = read8(TCS34725_ENABLE)
@@ -208,9 +268,13 @@ namespace m5color {
 		write8(TCS34725_ENABLE, next)
 	}
 
+	/**
+	 * Clear any pending color sensor interrupt.
+	 * Call this after handling an interrupt event to reset the interrupt flag.
+	 */
 	//% blockId=m5color_clear_interrupt
 	//% block="clear color interrupt"
-	//% weight=54 blockGap=8 advanced=true
+	//% weight=49 blockGap=8 group="Advanced"
 	export function clearInterrupt(): void {
 		if (!ensureInit()) return
 		const buf = pins.createBuffer(1)
@@ -218,9 +282,16 @@ namespace m5color {
 		pins.i2cWriteBuffer(_address, buf)
 	}
 
+	/**
+	 * Set the clear channel interrupt thresholds.
+	 * An interrupt triggers when the clear channel value goes below the low threshold
+	 * or above the high threshold. Enable interrupts with setInterrupt().
+	 * @param low the lower threshold value (0-65535)
+	 * @param high the upper threshold value (0-65535)
+	 */
 	//% blockId=m5color_set_interrupt_limits
 	//% block="set interrupt low %low high %high"
-	//% weight=53 blockGap=8 advanced=true
+	//% weight=48 blockGap=8 group="Advanced"
 	export function setInterruptLimits(low: number, high: number): void {
 		if (!ensureInit()) return
 		write8(TCS34725_AILTL, low & 0xFF)
