@@ -203,27 +203,25 @@ namespace m5color {
 	}
 
 	/**
-	 * Get the normalized RGB color as a hex color string.
-	 * Values are normalized to 0-255 range and formatted as #RRGGBB.
-	 * @return hex color string (e.g., "#FF0000" for red)
+	 * Get the normalized RGB color as a 24-bit number.
+	 * Values are normalized to 0-255 and packed as 0xRRGGBB.
+	 * @return numeric color (e.g., 0xFF0000 for red)
 	 */
 	//% blockId=m5color_rgb
-	//% block="RGB as hex color"
+	//% block="RGB color (number)"
 	//% weight=70 blockGap=8 group="Basic"
-	export function rgb(): string {
+	export function rgb(): number {
 		const raw = getRawInternal()
-		if (raw.c == 0) return "#000000"
+		if (raw.c == 0) return 0x000000
 		const scale = 255 / raw.c
-		const r = Math.round(raw.r * scale)
-		const g = Math.round(raw.g * scale)
-		const b = Math.round(raw.b * scale)
-		const hexChars = "0123456789ABCDEF"
-		const toHex = (n: number) => {
-			const high = Math.idiv(n, 16)
-			const low = n - (high * 16)
-			return hexChars.charAt(high) + hexChars.charAt(low)
-		}
-		return "#" + toHex(r) + toHex(g) + toHex(b)
+		let r = Math.round(raw.r * scale)
+		let g = Math.round(raw.g * scale)
+		let b = Math.round(raw.b * scale)
+		// clamp to 0..255
+		r = Math.max(0, Math.min(255, r))
+		g = Math.max(0, Math.min(255, g))
+		b = Math.max(0, Math.min(255, b))
+		return (r << 16) | (g << 8) | b
 	}
 
 	/**

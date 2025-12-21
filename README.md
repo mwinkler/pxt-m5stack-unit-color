@@ -18,7 +18,7 @@
 
 ### Basic Blocks
 - initialize color sensor: powers on and configures the device.
-- RGB as hex color: returns a string like #RRGGBB.
+- RGB color (number): returns 24-bit 0xRRGGBB.
 - color temperature (K): estimated CCT in Kelvin.
 - illuminance (lux): brightness estimate in lux.
 
@@ -37,11 +37,11 @@ m5color.init()
 m5color.setIntegrationTime(m5color.IntegrationTime.ms154)
 m5color.setGain(m5color.Gain.x16)
 
-const hex = m5color.rgb()
+const color = m5color.rgb() // 0xRRGGBB number
 const cct = m5color.colorTemperature()
 const lx = m5color.lux()
 
-basic.showString(hex)
+basic.showNumber(color)
 basic.showNumber(cct)
 basic.showNumber(lx)
 ```
@@ -50,4 +50,5 @@ basic.showNumber(lx)
 - Call m5color.init() before using the other blocks.
 - Longer integration times yield more stable readings.
 - Use Advanced raw channels when you need calibrated processing.
+- The `rgb()` block returns a number (0xRRGGBB). To display as hex, format manually if needed.
 
