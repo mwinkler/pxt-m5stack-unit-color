@@ -18,13 +18,13 @@
 
 ### Basic Blocks
 - initialize color sensor: powers on and configures the device.
-- set integration time: choose measurement duration.
-- set gain: set sensitivity (1x/4x/16x/60x).
 - RGB as hex color: returns a string like #RRGGBB.
 - color temperature (K): estimated CCT in Kelvin.
 - illuminance (lux): brightness estimate in lux.
 
 ### Advanced Blocks
+- set integration time: choose measurement duration.
+- set gain: set sensitivity (1x/4x/16x/60x).
 - set color interrupt: enable/disable interrupt.
 - clear color interrupt: clear pending interrupt.
 - set interrupt low/high: configure threshold limits.

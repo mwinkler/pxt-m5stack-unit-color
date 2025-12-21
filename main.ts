@@ -136,7 +136,7 @@ namespace m5color {
 	 */
 	//% blockId=m5color_set_integration
 	//% block="set integration time %it"
-	//% weight=90 blockGap=8 group="Basic"
+	//% weight=90 blockGap=8 group="Advanced" advanced=true
 	export function setIntegrationTime(it: IntegrationTime) {
 		_integrationTime = it
 		if (!_initialized) return
@@ -150,7 +150,7 @@ namespace m5color {
 	 */
 	//% blockId=m5color_set_gain
 	//% block="set gain %gain"
-	//% weight=85 blockGap=8 group="Basic"
+	//% weight=85 blockGap=8 group="Advanced" advanced=true
 	export function setGain(gain: Gain) {
 		_gain = gain
 		if (!_initialized) return
@@ -163,7 +163,7 @@ namespace m5color {
 	 */
 	//% blockId=m5color_raw_red
 	//% block="raw red"
-	//% weight=47 group="Advanced"
+	//% weight=47 group="Advanced" advanced=true
 	export function red(): number {
 		return getRawInternal().r
 	}
@@ -174,7 +174,7 @@ namespace m5color {
 	 */
 	//% blockId=m5color_raw_green
 	//% block="raw green"
-	//% weight=46 group="Advanced"
+	//% weight=46 group="Advanced" advanced=true
 	export function green(): number {
 		return getRawInternal().g
 	}
@@ -185,7 +185,7 @@ namespace m5color {
 	 */
 	//% blockId=m5color_raw_blue
 	//% block="raw blue"
-	//% weight=45 group="Advanced"
+	//% weight=45 group="Advanced" advanced=true
 	export function blue(): number {
 		return getRawInternal().b
 	}
@@ -197,7 +197,7 @@ namespace m5color {
 	 */
 	//% blockId=m5color_raw_clear
 	//% block="raw clear"
-	//% weight=44 blockGap=8 group="Advanced"
+	//% weight=44 blockGap=8 group="Advanced" advanced=true
 	export function clear(): number {
 		return getRawInternal().c
 	}
@@ -260,7 +260,7 @@ namespace m5color {
 	//% blockId=m5color_set_interrupt
 	//% block="set color interrupt %enable"
 	//% enable.shadow="toggleYesNo"
-	//% weight=50 blockGap=8 group="Advanced"
+	//% weight=50 blockGap=8 group="Advanced" advanced=true
 	export function setInterrupt(enable: boolean): void {
 		if (!ensureInit()) return
 		const r = read8(TCS34725_ENABLE)
@@ -274,7 +274,7 @@ namespace m5color {
 	 */
 	//% blockId=m5color_clear_interrupt
 	//% block="clear color interrupt"
-	//% weight=49 blockGap=8 group="Advanced"
+	//% weight=49 blockGap=8 group="Advanced" advanced=true
 	export function clearInterrupt(): void {
 		if (!ensureInit()) return
 		const buf = pins.createBuffer(1)
@@ -291,7 +291,7 @@ namespace m5color {
 	 */
 	//% blockId=m5color_set_interrupt_limits
 	//% block="set interrupt low %low high %high"
-	//% weight=48 blockGap=8 group="Advanced"
+	//% weight=48 blockGap=8 group="Advanced" advanced=true
 	export function setInterruptLimits(low: number, high: number): void {
 		if (!ensureInit()) return
 		write8(TCS34725_AILTL, low & 0xFF)
