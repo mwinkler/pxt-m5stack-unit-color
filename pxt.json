@@ -1,7 +1,7 @@
 {
     "name": "m5stack-unit-color",
     "version": "1.0.0",
-    "description": "",
+    "description": "M5Stack Color Unit (TCS34725)",
     "license": "MIT",
     "dependencies": {
         "core": "*"
