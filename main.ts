@@ -51,6 +51,41 @@ namespace m5color {
 		x60 = 0x03
 	}
 
+	export enum ColorName {
+		//% block="Black"
+		Black = 0,
+		//% block="White"
+		White = 1,
+		//% block="Red"
+		Red = 2,
+		//% block="Green"
+		Green = 3,
+		//% block="Blue"
+		Blue = 4,
+		//% block="Yellow"
+		Yellow = 5,
+		//% block="Cyan"
+		Cyan = 6,
+		//% block="Magenta"
+		Magenta = 7,
+		//% block="Orange"
+		Orange = 8,
+		//% block="Purple"
+		Purple = 9,
+		//% block="Brown"
+		Brown = 10,
+		//% block="Gray"
+		Gray = 11,
+		//% block="Light Gray"
+		LightGray = 12,
+		//% block="Dark Red"
+		DarkRed = 13,
+		//% block="Dark Green"
+		DarkGreen = 14,
+		//% block="Dark Blue"
+		DarkBlue = 15
+	}
+
 	let _initialized = false
 	let _integrationTime = IntegrationTime.ms2_4
 	let _gain = Gain.x1
@@ -222,6 +257,63 @@ namespace m5color {
 		g = Math.max(0, Math.min(255, g))
 		b = Math.max(0, Math.min(255, b))
 		return (r << 16) | (g << 8) | b
+	}
+
+	/**
+	 * Get the detected color as a named color from a 16-color palette.
+	 * Finds the closest matching color by comparing RGB values.
+	 * @return the closest matching color name
+	 */
+	//% blockId=m5color_color_name
+	//% block="color name"
+	//% weight=68 blockGap=8 group="Basic"
+	export function colorName(): ColorName {
+		const rgbValue = rgb()
+		const r = (rgbValue >> 16) & 0xFF
+		const g = (rgbValue >> 8) & 0xFF
+		const b = rgbValue & 0xFF
+		return rgbToColorName(r, g, b)
+	}
+
+	function rgbToColorName(r: number, g: number, b: number): ColorName {
+		// Define the 16 reference colors with their RGB values
+		const colors = [
+			{ name: ColorName.Black, r: 0, g: 0, b: 0 },
+			{ name: ColorName.White, r: 255, g: 255, b: 255 },
+			{ name: ColorName.Red, r: 255, g: 0, b: 0 },
+			{ name: ColorName.Green, r: 0, g: 255, b: 0 },
+			{ name: ColorName.Blue, r: 0, g: 0, b: 255 },
+			{ name: ColorName.Yellow, r: 255, g: 255, b: 0 },
+			{ name: ColorName.Cyan, r: 0, g: 255, b: 255 },
+			{ name: ColorName.Magenta, r: 255, g: 0, b: 255 },
+			{ name: ColorName.Orange, r: 255, g: 165, b: 0 },
+			{ name: ColorName.Purple, r: 128, g: 0, b: 128 },
+			{ name: ColorName.Brown, r: 165, g: 42, b: 42 },
+			{ name: ColorName.Gray, r: 128, g: 128, b: 128 },
+			{ name: ColorName.LightGray, r: 192, g: 192, b: 192 },
+			{ name: ColorName.DarkRed, r: 139, g: 0, b: 0 },
+			{ name: ColorName.DarkGreen, r: 0, g: 100, b: 0 },
+			{ name: ColorName.DarkBlue, r: 0, g: 0, b: 139 }
+		]
+
+		// Find the closest color using Euclidean distance in RGB space
+		let minDistance = 999999
+		let closestColor = ColorName.Black
+
+		for (let i = 0; i < colors.length; i++) {
+			const color = colors[i]
+			const dr = r - color.r
+			const dg = g - color.g
+			const db = b - color.b
+			const distance = dr * dr + dg * dg + db * db
+
+			if (distance < minDistance) {
+				minDistance = distance
+				closestColor = color.name
+			}
+		}
+
+		return closestColor
 	}
 
 	/**
