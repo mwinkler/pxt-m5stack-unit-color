@@ -1,4 +1,4 @@
-## M5Stack Unit Color (TCS34725) — MakeCode Extension
+## M5Stack Unit Color (TCS34725) — MakeCode Extension (Work in progress)
 
 ### Overview
 - Provides blocks to read color and light from the TCS34725 sensor.

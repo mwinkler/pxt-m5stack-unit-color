@@ -87,8 +87,8 @@ namespace m5color {
 	}
 
 	let _initialized = false
-	let _integrationTime = IntegrationTime.ms2_4
-	let _gain = Gain.x1
+	let _integrationTime = IntegrationTime.ms154
+	let _gain = Gain.x4
 	let _address = TCS34725_ADDRESS
 
 	interface RawColor {
@@ -113,7 +113,9 @@ namespace m5color {
 	function read16(reg: number): number {
 		pins.i2cWriteNumber(_address, TCS34725_COMMAND_BIT | (reg & 0xFF), NumberFormat.UInt8BE)
 		const buf = pins.i2cReadBuffer(_address, 2)
-		return (buf[1] << 8) | buf[0]
+		// Little-endian: low byte first, high byte second
+		// Ensure unsigned 16-bit result
+		return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
 	}
 
 	function enable() {
@@ -129,7 +131,7 @@ namespace m5color {
 		return _initialized
 	}
 
-	function getRawInternal(): RawColor {
+	export function getRawInternal(): RawColor {
 		if (!ensureInit()) return { r: 0, g: 0, b: 0, c: 0 }
 		const c = read16(TCS34725_CDATAL)
 		const r = read16(TCS34725_RDATAL)
