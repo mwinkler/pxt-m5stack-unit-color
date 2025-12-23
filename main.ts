@@ -112,10 +112,11 @@ namespace m5color {
 
 	function read16(reg: number): number {
 		pins.i2cWriteNumber(_address, TCS34725_COMMAND_BIT | (reg & 0xFF), NumberFormat.UInt8BE)
-		const buf = pins.i2cReadBuffer(_address, 2)
-		// Little-endian: low byte first, high byte second
-		// Ensure unsigned 16-bit result
-		return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
+		return pins.i2cReadNumber(_address, NumberFormat.UInt16LE)
+		// const buf = pins.i2cReadBuffer(_address, 2)
+		// // Little-endian: low byte first, high byte second
+		// // Ensure unsigned 16-bit result
+		// return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
 	}
 
 	function enable() {
@@ -264,17 +265,47 @@ namespace m5color {
 	/**
 	 * Get the detected color as a named color from a 16-color palette.
 	 * Finds the closest matching color by comparing RGB values.
+	 * @param rgbValue the RGB color as a 24-bit number (0xRRGGBB)
 	 * @return the closest matching color name
 	 */
 	//% blockId=m5color_color_name
 	//% block="color name"
 	//% weight=68 blockGap=8 group="Basic"
-	export function colorName(): ColorName {
-		const rgbValue = rgb()
+	export function colorName(rgbValue: number): ColorName {
 		const r = (rgbValue >> 16) & 0xFF
 		const g = (rgbValue >> 8) & 0xFF
 		const b = rgbValue & 0xFF
 		return rgbToColorName(r, g, b)
+	}
+
+	/**
+	 * Convert a ColorName enum value to its string representation.
+	 * @param color the ColorName enum value
+	 * @return the string name of the color
+	 */
+	//% blockId=m5color_color_name_to_string
+	//% block="color name to string %color"
+	//% weight=67 blockGap=8 group="Basic"
+	export function colorNameToString(color: ColorName): string {
+		switch (color) {
+			case ColorName.Black: return "Black"
+			case ColorName.White: return "White"
+			case ColorName.Red: return "Red"
+			case ColorName.Green: return "Green"
+			case ColorName.Blue: return "Blue"
+			case ColorName.Yellow: return "Yellow"
+			case ColorName.Cyan: return "Cyan"
+			case ColorName.Magenta: return "Magenta"
+			case ColorName.Orange: return "Orange"
+			case ColorName.Purple: return "Purple"
+			case ColorName.Brown: return "Brown"
+			case ColorName.Gray: return "Gray"
+			case ColorName.LightGray: return "Light Gray"
+			case ColorName.DarkRed: return "Dark Red"
+			case ColorName.DarkGreen: return "Dark Green"
+			case ColorName.DarkBlue: return "Dark Blue"
+			default: return "Unknown"
+		}
 	}
 
 	function rgbToColorName(r: number, g: number, b: number): ColorName {
